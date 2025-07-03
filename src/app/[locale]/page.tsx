@@ -5,8 +5,8 @@ import ContactPage from "./contact/page";
 
 
 
-export default async function Home() {
 
+export default async function Home() {
   return (
     <main>
       <Hero />
