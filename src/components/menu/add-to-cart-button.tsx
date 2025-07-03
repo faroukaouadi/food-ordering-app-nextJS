@@ -20,11 +20,14 @@ import { Checkbox } from "../ui/checkbox";
 import { Extra, ProductSizes, Size } from "@/generated/prisma";
 import { ProductWithRelations } from "@/types/product";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { addCartItem, selectCartItems } from "@/redux/features/cart/cartSlice";
+import { addCartItem, removeCartItem, removeItemFromCart, selectCartItems } from "@/redux/features/cart/cartSlice";
 import { useState } from "react";
+import { getItemQuantity } from "@/lib/cart";
+import { useDispatch } from "react-redux";
 
 function AddToCartButton({item}:{item:ProductWithRelations}) {
   const cart = useAppSelector(selectCartItems);
+  const quantity = getItemQuantity(item.id,cart);
   const dispatch = useAppDispatch();
   
   const defaultSize = cart.find((element)=> element.id === item.id)?.size ||
@@ -68,28 +71,47 @@ function AddToCartButton({item}:{item:ProductWithRelations}) {
         <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-auto">
           <DialogHeader className="flex items-center">
             <Image src={item.image} alt={item.name} width={200} height={200} />
-            <DialogTitle >{item.name}</DialogTitle>
+            <DialogTitle>{item.name}</DialogTitle>
             <DialogDescription className="text-center">
               {item.description}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-10">
-            <div className='space-y-4 text-center'>
-              <Label htmlFor='pick-size'>Pick your size</Label>
-              <PickSize 
-               sizes={item.sizes}
-               item={item}
-               selectedSize={selectedSize}
-               setSelectedSize={setSelectedSize}
-               />
+            <div className="space-y-4 text-center">
+              <Label htmlFor="pick-size">Pick your size</Label>
+              <PickSize
+                sizes={item.sizes}
+                item={item}
+                selectedSize={selectedSize}
+                setSelectedSize={setSelectedSize}
+              />
             </div>
-          <div className='space-y-4 text-center'>
-            <Label htmlFor='add-extras'>Any extras?</Label>
-              <Extras extras={item.extras} selectedExtas={selectedExtas} setSelectedExtas={setSelectedExtas} />
-            </div>  
+            <div className="space-y-4 text-center">
+              <Label htmlFor="add-extras">Any extras?</Label>
+              <Extras
+                extras={item.extras}
+                selectedExtas={selectedExtas}
+                setSelectedExtas={setSelectedExtas}
+              />
+            </div>
           </div>
           <DialogFooter>
-            <Button type="submit" onClick={HandelAddToCart}  className='w-full h-10'>Add to cart {formatCurrency(totalPrice)} </Button>
+            {quantity === 0 ? (
+              <Button
+                type="submit"
+                onClick={HandelAddToCart}
+                className="w-full h-10"
+              >
+                Add to cart {formatCurrency(totalPrice)}{" "}
+              </Button>
+            ) : (
+              <ChooseQuantity
+                quantity={quantity}
+                item={item}
+                selectedSize={selectedSize}
+                selectedExtas={selectedExtas}
+              />
+            )}
           </DialogFooter>
         </DialogContent>
       </form>
@@ -143,3 +165,44 @@ export default AddToCartButton
    ));
  }
 
+ const ChooseQuantity =({
+  quantity,
+  item,
+  selectedSize,
+  selectedExtas
+}:{
+  quantity:number,
+  item:ProductWithRelations;
+  selectedSize :Size;
+  selectedExtas:Extra[];
+})=>{
+  const dispatch = useDispatch();
+  return (
+    <div className="flex items-center flex-col gap-2 mt-4 w-full">
+      <div className=" flex items-center justify-center gap-2">
+        <Button variant="outline" onClick={()=>dispatch(removeCartItem({id:item.id}))}>-</Button>
+        <div>
+          <span className="text-black">{quantity} in cart</span>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() =>
+            dispatch(
+              addCartItem({
+                basePrice: item.basePrice,
+                id:item.id,
+                image:item.image,
+                name:item.name,
+                extras:selectedExtas,
+                size:selectedSize,
+              })
+            )
+          }
+        >
+          +
+        </Button>
+      </div>
+      <Button size={"sm"} onClick={()=>dispatch(removeItemFromCart({id:item.id}))}>Remove</Button>
+    </div>
+  );
+ }
