@@ -7,6 +7,7 @@ import ReduxProvider from "@/providers/ReduxProvider";
 import { Locale } from "@/i18n.config";
 import { Directions, Languages } from "@/constants/enums";
 import { Toaster } from "@/components/ui/sonner";
+import NextAuthSessionProvider from "@/providers/NextAuthSessionProvider";
 
 export async function generateStaticParams() {
   return [{ locale: Languages.ARABIC }, { locale: Languages.ENGLISH }];
@@ -42,12 +43,14 @@ export default async function RootLayout({
       <body className={
           locale === Languages.ARABIC ? cairo.className : roboto.className
         }>
+        <NextAuthSessionProvider>
         <ReduxProvider >
         <Header />
         {children}
         <Footer />
         <Toaster />
         </ReduxProvider>
+        </NextAuthSessionProvider>
       </body>
     </html>
   );

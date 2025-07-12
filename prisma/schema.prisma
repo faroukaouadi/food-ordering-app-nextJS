@@ -24,6 +24,7 @@ model User {
   postalCode    String?
   city          String?
   country       String?
+  role          UserRole       @default(USER)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   orders        OrderProduct[]
@@ -104,7 +105,7 @@ model Product {
 model Category {
   id       String    @id @default(uuid())
   name     String
-  order    Int       
+  order    Int       @unique @default(autoincrement())
   products Product[]
 }
 model Order {
@@ -146,4 +147,8 @@ model OrderProduct {
   TOMATO
   ONION
   PEPPER
+ }
+ enum UserRole {
+  USER
+  ADMIN
  }
