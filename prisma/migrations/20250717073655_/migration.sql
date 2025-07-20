@@ -17,7 +17,7 @@ DROP INDEX `Product_categoryId_fkey` ON `product`;
 DROP INDEX `Size_productId_fkey` ON `size`;
 
 -- AlterTable
-ALTER TABLE `user` ADD COLUMN `role` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER';
+ALTER TABLE `product` MODIFY `order` INTEGER NULL;
 
 -- AddForeignKey
 ALTER TABLE `Session` ADD CONSTRAINT `Session_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

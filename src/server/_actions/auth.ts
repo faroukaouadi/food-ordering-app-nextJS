@@ -1,11 +1,13 @@
 "use server"
 
+import { Pages, Routes } from "@/constants/enums";
 import { Locale } from "@/i18n.config"
 import { getCurrentLocale } from "@/lib/getCurrentLocale";
 import { db } from "@/lib/prisma";
 import getTrans from "@/lib/translation"
 import { loginSchema, signUpSchema } from "@/validations/auth";
 import bcrypt from "bcrypt";
+import { revalidatePath } from "next/cache";
 
 export const login = async (credentials:Record<"email" | "password", string> | undefined,locale:Locale) =>{
 const translations = await getTrans(locale);
@@ -83,6 +85,8 @@ const translations = await getTrans(locale);
         password:hashedPassword,
       },
     });
+    revalidatePath(`/${locale}/${Routes.ABOUT}/${Pages.USERS}`);
+    revalidatePath(`/${locale}/${Routes.ABOUT}/${Pages.USERS}/${createdUser.id}/${Pages.EDIT}`);
     return {
       status:201,
       message: translations.messages.accountCreated,

@@ -14,9 +14,10 @@ import { ValidationErrors } from "@/validations/auth";
 import { updateProfile } from "./_actions/profile";
 import { CameraIcon, Loader } from "lucide-react";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 function EditUserForm({user,translations}:{user:Session["user"],translations:Translations}) {
-
+  const session = useSession();
   const formData = new FormData();
   Object.entries(user).forEach(([key, value]) =>{
     if(value !== null && value !== undefined && key !== "image"){
@@ -55,6 +56,7 @@ function EditUserForm({user,translations}:{user:Session["user"],translations:Tra
   return (
     <form action={action} className="flex flex-col md:flex-row gap-10">
       <div className="group relative w-[200px] h-[200px] overflow-hidden rounded-full mx-auto">
+       {selectedImage && (
         <Image
           src={selectedImage as string}
           alt={user.name}
@@ -62,6 +64,8 @@ function EditUserForm({user,translations}:{user:Session["user"],translations:Tra
           height={200}
           className="rounded-full object-cover"
         />
+       )}
+        
         <div
           className={`${
             selectedImage
@@ -86,7 +90,7 @@ function EditUserForm({user,translations}:{user:Session["user"],translations:Tra
             </div>
           );
         })}
-        {user.role === UserRole.ADMIN && (
+        {session.data?.user.role === UserRole.ADMIN && (
           <div className="flex items-center gap-2 my-4">
             <Checkbox 
              name="admin"

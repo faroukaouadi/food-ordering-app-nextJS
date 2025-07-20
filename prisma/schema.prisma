@@ -77,7 +77,7 @@ model Product {
   name        String
   description String
   image       String
-  order       Int            
+  order       Int?            @unique
   basePrice   Float
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
@@ -92,14 +92,14 @@ model Product {
   id String @id @default(cuid())
   name ProductSizes
   price Float
-  product  Product @relation(fields: [productId],references: [id])
+  product  Product @relation(fields: [productId],references: [id], onDelete: Cascade)
   productId String
  }
   model Extra {
   id String @id @default(cuid())
   name ExtraIngredients
   price Float
-  product  Product @relation(fields: [productId],references: [id])
+  product  Product @relation(fields: [productId],references: [id], onDelete: Cascade)
   productId String
  }
 model Category {
